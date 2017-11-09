@@ -1,0 +1,9 @@
+{
+  "query": {
+    "match_phrase_prefix": {
+      "suggestion": "START playing gu"
+    }
+  },
+  "size": 10,
+  "_source": "suggestion"
+}

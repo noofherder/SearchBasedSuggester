@@ -1,0 +1,16 @@
+{
+  "mappings": {
+    "post": {
+      "properties": {
+        "body": { "type": "string" },
+        "title": { "type": "string" },
+        "creationdate": { "type": "date" },
+        "score": { "type": "integer" },
+        "viewcount": { "type": "integer" },
+        "answercount": { "type": "integer" },
+        "commentcount": { "type": "integer" },
+        "favoritecount": { "type": "integer" }
+      }
+    }
+  }
+}

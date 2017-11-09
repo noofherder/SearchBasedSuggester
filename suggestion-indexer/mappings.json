@@ -1,0 +1,17 @@
+{
+  "mappings": {
+    "suggestion": {
+      "properties": {
+        "suggestion": { "type": "text" },
+        "count": { "type": "integer" },
+        "meta": {
+          "type": "nested",
+          "properties": {
+            "viewcount": { "type": "integer" },
+            "answercount": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}

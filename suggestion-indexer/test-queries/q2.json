@@ -1,0 +1,9 @@
+{
+  "query": {
+    "match_phrase_prefix": {
+      "suggestion": "START pla"
+    }
+  },
+  "size": 10,
+  "_source": "suggestion"
+}

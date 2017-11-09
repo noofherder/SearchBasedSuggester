@@ -1,0 +1,9 @@
+{
+  "query": {
+    "match_phrase": {
+      "suggestion": "START playing"
+    }
+  },
+  "size": 10,
+  "_source": "suggestion"
+}

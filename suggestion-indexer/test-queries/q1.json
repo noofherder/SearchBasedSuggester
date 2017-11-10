@@ -1,9 +1,61 @@
 {
   "query": {
-    "match_phrase": {
-      "suggestion": "START playing"
+    "bool": {
+      "must": {
+        "function_score": {
+          "query": {
+            "dis_max": {
+              "tie_breaker": 0.5,
+              "queries": [
+                { "prefix": {
+                  "suggestion.kw": {
+                    "value": "play",
+                    "boost": 10.0
+                  }
+                }},
+                { "match_phrase_prefix": {
+                  "suggestion": {
+                    "query": "play",
+                    "slop": 2,
+                    "boost": 3.0
+                  }
+                }},
+                { "match": {
+                  "suggestion": {
+                    "query": "play",
+                    "minimum_should_match": 1
+                  }
+                }}
+              ]
+            }
+          },
+          "boost_mode": "multiply",
+          "field_value_factor": {
+            "field": "count",
+            "missing": 1,
+            "modifier": "log"
+          }
+        }
+      },
+      "filter": {
+        "nested": {
+          "path": "meta",
+          "query": {
+            "bool": {
+              "must": [
+                { "range": {
+                  "meta.viewcount": { "gte": 1000 }
+                }},
+                { "range": {
+                  "meta.answercount": { "gte": 10 }
+                }}
+              ]
+            }
+          }
+        }
+      }
     }
   },
   "size": 10,
-  "_source": "suggestion"
+  "_source": [ "suggestion", "count" ]
 }

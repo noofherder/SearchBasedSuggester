@@ -23,7 +23,7 @@ MAX_SHINGLE_LEN = 3
 
 class ShingleData:
     def __init__(self, shingle):
-        self.shingle = "START " + shingle
+        self.shingle = shingle
         self.count = 0
         self.metadata = {}
 

@@ -2,8 +2,17 @@
   "mappings": {
     "suggestion": {
       "properties": {
-        "suggestion": { "type": "text" },
-        "count": { "type": "integer" },
+        "suggestion": {
+          "type": "text",
+          "fields": {
+            "kw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "count": {
+          "type": "integer"
+        },
         "meta": {
           "type": "nested",
           "properties": {

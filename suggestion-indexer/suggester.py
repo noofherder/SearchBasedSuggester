@@ -22,14 +22,14 @@ def make_main_query(partial, meta_filter):
                                     "prefix": {
                                         "suggestion.kw": {
                                             "value": partial,
-                                            "boost": 10.0
+                                            "boost": 100.0
                                         }
                                 }}, {
                                     "match_phrase_prefix": {
                                         "suggestion": {
                                             "query": partial,
                                             "slop": 2,
-                                            "boost": 3.0
+                                            "boost": 10.0
                                         }
                                 }}, {
                                     "match": {

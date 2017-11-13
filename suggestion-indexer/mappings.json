@@ -10,7 +10,10 @@
             }
           }
         },
-        "count": {
+        "freq": {
+          "type": "integer"
+        },
+        "length": {
           "type": "integer"
         },
         "meta": {

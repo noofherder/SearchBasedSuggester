@@ -14,6 +14,9 @@ SUGGESTION_INDEX = "music_suggest"
 ALL_QUERY = "*:*"
 SCROLL_TIME = "2m"
 
+CHUNK_RE = re.compile(r'[\.\,\?\!\;\:]')
+WORD_RE = re.compile(r"\w+(?:[\-\_\']+\w+)?")
+
 TEXT_FIELDS = [ "body", "title" ]
 META_FIELDS = [ "viewcount", "answercount" ]
 
@@ -24,17 +27,14 @@ MAX_SHINGLE_LEN = 3
 class ShingleData:
     def __init__(self, shingle):
         self.shingle = shingle
-        self.count = 0
+        self.length = len(shingle)
+        self.freq = 0
         self.metadata = {}
 
-    def update(self, count, metadata):
-        self.count += count
+    def update(self, freq, metadata):
+        self.freq += freq
         mdkey = hash(json.dumps(metadata, sort_keys=True))
         self.metadata.setdefault(mdkey, metadata)
-
-    def __str__(self):
-        #meta = u' '.join(unicode(x) for x in self.metadata.itervalues()).encode('utf8')
-        return '"{0}" count={1} meta:{2}'.format(self.shingle.encode('utf8'), self.count, len(self.metadata))
 
 def read_index(index):
     processed = 0
@@ -82,8 +82,8 @@ def process_documents(docs, shingle_data):
 
         for field in TEXT_FIELDS:
             text = stripHTML(source.get(field, '').lower())
-            for shin, count in get_shingles(text).iteritems():
-                shingle_data.setdefault(shin, ShingleData(shin)).update(count, metadata)
+            for shin, freq in get_shingles(text).iteritems():
+                shingle_data.setdefault(shin, ShingleData(shin)).update(freq, metadata)
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -106,8 +106,8 @@ def get_shingles(text):
     shingles = {}
 
     # extract shingles from within sentences and clauses
-    for chunk in re.split(r'[\.\,\?\!\;\:]', text):
-        words = re.findall(r"\w+(?:[\-\_\']+\w+)?", chunk)
+    for chunk in CHUNK_RE.split(text):
+        words = WORD_RE.findall(chunk)
         for size in xrange(1, MAX_SHINGLE_LEN + 1):
             for i in xrange(len(words) + 1 - size):
                 try:
@@ -116,7 +116,7 @@ def get_shingles(text):
                         if len(word) < MIN_WORD_LEN or len(word) > MAX_WORD_LEN or word in STOPWORDS:
                             raise RejectShingle
                     shin = ' '.join(shin)
-                    # increase the shingle count
+                    # increase the shingle freq
                     shingles[shin] = shingles.get(shin, 0) + 1
                 except RejectShingle:
                     pass
@@ -130,7 +130,8 @@ def create_suggestion_index(shingle_data, index):
         }))
         batch.append(json.dumps({
             "suggestion": item.shingle,
-            "count": item.count,
+            "freq": item.freq,
+            "length": item.length,
             "meta": item.metadata.values()
         }))
 

@@ -89,8 +89,19 @@ which returns:
     already play guitar
     just play
     play along
-    play chords
     ...
+```
+while if we change the filter but keep the partial query the same:
+```
+    ./suggester.py "play gu" 50 5
+```
+we get a somewhat different list, as expected:
+```
+    play guitar
+    play classical guitar
+    play electric guitar
+    guitar play
+    play acoustic guitar
 ```
 
 ## Limitations

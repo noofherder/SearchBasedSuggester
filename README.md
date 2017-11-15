@@ -38,14 +38,16 @@ To create the search index for the music corpus, download and uncompress the [zi
     cd test-index
     curl -XPUT localhost:9200/music -d@mappings.json
 ```
-and index the music forum posts:
+and index the music forum posts (substituting the correct path to ```Posts.xml``` if necessary):
 ```
-    python ./indexer.py <path to unpacked posts archive>
+    python ./indexer.py Posts.xml
 ```
+
 To test that the index has been created correctly, run a search, e.g.:
 ```
-    curl localhost:9200/music/_search?pretty&q=piano
+    curl localhost:9200/music/_search?pretty\&q=piano
 ```
+(on Windows, omit the backslash.)
 
 ## Creating the suggestions index
 
@@ -79,16 +81,16 @@ In the example python script, ```suggester.py```, the suggestion query consists 
 
 To run the suggester, supply the partially-completed user query and values for filtering by view count and answer count. For example:
 ```
-    python ./suggester.py "play" 100 10
+    python ./suggester.py "play gu" 100 10
 ```
 which returns:
 ```
-   play
-   playing
-   player
-   play guitar
-   player piano
-   allows playing
+    play guitar
+    play lead guitar
+    already play guitar
+    just play
+    play along
+    play chords
     ...
 ```
 

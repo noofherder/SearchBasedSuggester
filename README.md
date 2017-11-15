@@ -15,7 +15,7 @@ This proof of concept demonstrates how an auxiliary suggestion index could be ge
 
 Each document in the suggestion index consists of a short fragment of text, from one to three words long. These correspond to word "shingles" (groups of concurrent words) in the source text, which do not span punctuation. For example, in the text:
 
-  "All happy families are alike; each unhappy family is unhappy in its own way."
+> "All happy families are alike; each unhappy family is unhappy in its own way."
 
 the shingles would include "families", "families are", "families are alike", but *not* "are alike each".
 
@@ -29,11 +29,11 @@ For the purposes of this proof of concept, I used the entire corpus of posts fro
 
 You need a fairly recent version of [Elasticsearch][4] (I used 5.5.1) installed and running. You also need [Python][5] 2.7.x with the [requests][6] module installed.
 
-I wrote and tested the code on a Mac. It should work without modification on Linux. If you use Windows, you're on your own!
+I wrote and tested the code on a Mac. It should work without modification on Linux. If you use Windows, you're on your own. ;)
 
 ## Creating the music index
 
-To create the search index for the music corpus, download and uncompress the [zipped archive][7] (you may need to download a tool to deal with 7-zip files.) Then execute the following commands to create the index:
+To create the search index for the music corpus, download and uncompress the [zipped archive][3] (you may need to download a tool to deal with 7-zip files.) Then execute the following commands to create the index:
 ```
     cd test-index
     curl -XPUT localhost:9200/music -d@mappings.json
@@ -42,14 +42,14 @@ and index the music forum posts:
 ```
     ./indexer.py <path to unpacked posts archive>
 ```
-To test that the index has been created correctly, you could run some searches, e.g.:
+To test that the index has been created correctly, run a search, e.g.:
 ```
     curl localhost:9200/music/_search?pretty\&q=piano
 ```
 
 ## Creating the suggestions index
 
-The suggestions index is created by reading the entire music index in batches of 100, using the Elasticsearch [scroll API][8]. Shingles are extracted from the document text, and held in memory along with the access control metadata (in the music example we are using the fields *viewcount* and *answercount*.) The reason the shingles are held in memory is that until all the documents have been processed we don't have the entire set of document metadata to be indexed with each shingle. We also keep track of the frequency of each shingle, to be used later for ranking suggestions. Each record looks something like this:
+The suggestions index is created by reading the entire music index in batches of 100, using the Elasticsearch [scroll API][7]. Shingles are extracted from the document text, and held in memory along with the access control metadata (in the music example we are using the fields *viewcount* and *answercount*.) The reason the shingles are held in memory is that until all the documents have been processed we don't have the entire set of document metadata to be indexed with each shingle. We also keep track of the frequency of each shingle, to be used later for ranking suggestions. Each record looks something like this:
 ```
     shingle: "playing funk guitar"
     frequency: 17
@@ -75,7 +75,7 @@ The shingle text is indexed both analysed (with the default analyser) and as a k
 
 To get suggestions from the index, we run a normal Elasticsearch search. This consists of two main subqueries, joined by a *bool* query. First, there is the query to return a ranked list of suggestions (shingles). Second, there is a filter to only return suggestions that correspond to documents that the user is allowed to view. This is done with a *nested* query type, corresponding to the nested metadata objects in the index.
 
-In the example python script, ```suggester.py```, the suggestion query consists of three subqueries in an attempt combine both [precision and recall][9]. First there is a *prefix* query against the keyword-indexed shingle, to try to get the closest match. Then there is a sloppy *match_phrase_prefix* query against the analysed field, to retrieve variations of the shingle. Finally there is a simple *match* query to catch whatever else might be available. These are boosted by 100, 10 and 1 respectively. The score is further boosted by the logarithm of the shingle frequency in the music index, to push more common shingles higher.
+In the example python script, ```suggester.py```, the suggestion query consists of three subqueries in an attempt combine both [precision and recall][8]. First there is a *prefix* query against the keyword-indexed shingle, to try to get the closest match. Then there is a sloppy *match_phrase_prefix* query against the analysed field, to retrieve variations of the shingle. Finally there is a simple *match* query to catch whatever else might be available. These are boosted by 100, 10 and 1 respectively. The score is further boosted by the logarithm of the shingle frequency in the music index, to push more common shingles higher.
 
 To run the suggester, supply the partially-completed user query and values for filtering by view count and answer count. For example:
 ```
@@ -89,6 +89,7 @@ which returns:
     just play
     play along
     play chords
+    ...
 ```
 
 ## Limitations
@@ -97,14 +98,11 @@ This is a first attempt at a proof of concept. The index mappings and query cons
 
 The current implementation of the suggestions indexer cannot do incremental indexing for documents added, deleted or modified in the main index. Also, since it collates the suggestions in memory it might not be scalable to very large source indexes. It would certainly be possible to redesign the suggestions indexer to deal with these problems, though.
 
-## References
-
 [1]: https://www.elastic.co/guide/en/elasticsearch/reference/current/nested.html
 [2]: https://music.stackexchange.com/
-[3]: https://archive.org/details/stackexchange
+[3]: https://archive.org/download/stackexchange/music.stackexchange.com.7z
 [4]: https://www.elastic.co/downloads/elasticsearch
 [5]: https://www.python.org/downloads/
 [6]: http://docs.python-requests.org/en/master/user/install/
-[7]: https://archive.org/download/stackexchange/music.stackexchange.com.7z
-[8]: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
-[9]: https://en.wikipedia.org/wiki/Precision_and_recall
+[7]: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
+[8]: https://en.wikipedia.org/wiki/Precision_and_recall

@@ -45,9 +45,8 @@ and index the music forum posts (substituting the correct path to ```Posts.xml``
 
 To test that the index has been created correctly, run a search, e.g.:
 ```
-    curl localhost:9200/music/_search?pretty\&q=piano
+    curl "localhost:9200/music/_search?pretty&q=piano"
 ```
-(on Windows, omit the backslash.)
 
 ## Creating the suggestions index
 

@@ -41,5 +41,7 @@ class StreamHandler(xml.sax.handler.ContentHandler):
 if __name__ == '__main__':
     parser = xml.sax.make_parser()
     parser.setContentHandler(StreamHandler())
-    with open(sys.argv[1]) as f:
+    root = sys.argv[1];
+    for filename in os.listdir(root):
+        f = open(os.path.join(root, filename),'r')
         parser.parse(f)

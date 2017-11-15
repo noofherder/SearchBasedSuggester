@@ -9,7 +9,7 @@ Why do we care about access control for autosuggest? There are at least two reas
   * Suggestions may "leak" information about the content of the index to users who do not have access to sensitive documents. The simple fact that an index contains the word "redundancies", for example, may be significant.
   * If a user gets a suggestion for content they do not have access to, a search for that suggestion will return zero documents, which is unexpected and makes it look like the search engine is broken.
 
-To be useful, suggesters must be fast, they must provide suggestions which make intuitive sense to the user and which, if followed, lead to search results, and they must be reasonably comprehensive (they should take account of all the content which the user potentially has access to.) For these reasons, it is impractical in most cases to implement suggestions directly from the search index.
+To be useful, suggesters must be fast, they must provide suggestions which make intuitive sense to the user and which, if followed, lead to search results, and they must be reasonably comprehensive (they should take account of all the content which the user potentially has access to.) For these reasons, it is impractical in most cases to obtain suggestions directly from the main index using a search-based method.
 
 This proof of concept demonstrates how an auxiliary suggestion index could be generated from a main search index, and how relevant suggestions could be retrieved from it, filtered by arbitrarily complex rules such as for implementing access control.
 

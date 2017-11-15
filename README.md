@@ -29,7 +29,7 @@ For the purposes of this proof of concept, I used the entire corpus of posts fro
 
 You need a fairly recent version of [Elasticsearch][4] (I used 5.5.1) installed and running. You also need [Python][5] 2.7.x with the [requests][6] module installed.
 
-I wrote and tested the code on a Mac. It should work without modification on Linux. If you use Windows, you're on your own. ;)
+I wrote and tested the code on a Mac. It should work without modification on Linux. If you use Windows, you'll probably need to install [curl][9] first.
 
 ## Creating the music index
 
@@ -40,11 +40,11 @@ To create the search index for the music corpus, download and uncompress the [zi
 ```
 and index the music forum posts:
 ```
-    ./indexer.py <path to unpacked posts archive>
+    python ./indexer.py <path to unpacked posts archive>
 ```
 To test that the index has been created correctly, run a search, e.g.:
 ```
-    curl localhost:9200/music/_search?pretty\&q=piano
+    curl localhost:9200/music/_search?pretty&q=piano
 ```
 
 ## Creating the suggestions index
@@ -64,9 +64,9 @@ The suggestions index is created by reading the entire music index in batches of
 ```
 After all the source documents have been processed, the shingles and associated metadata are indexed to the suggestions index. To do this:
 ```
-    cd suggestion-index
+    cd ../suggestion-indexer
     curl -XPUT localhost:9200/music_suggest -d@mappings.json
-    ./indexer.py
+    python ./indexer.py
 ```
 
 The shingle text is indexed both analysed (with the default analyser) and as a keyword. Metadata is indexed as nested objects.
@@ -79,16 +79,16 @@ In the example python script, ```suggester.py```, the suggestion query consists 
 
 To run the suggester, supply the partially-completed user query and values for filtering by view count and answer count. For example:
 ```
-    ./suggester.py "play gu" 100 10
+    python ./suggester.py "play" 100 10
 ```
 which returns:
 ```
-    play guitar
-    play lead guitar
-    already play guitar
-    just play
-    play along
-    play chords
+   play
+   playing
+   player
+   play guitar
+   player piano
+   allows playing
     ...
 ```
 
@@ -106,3 +106,4 @@ The current implementation of the suggestions indexer cannot do incremental inde
 [6]: http://docs.python-requests.org/en/master/user/install/
 [7]: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
 [8]: https://en.wikipedia.org/wiki/Precision_and_recall
+[9]: https://curl.haxx.se/download.html
